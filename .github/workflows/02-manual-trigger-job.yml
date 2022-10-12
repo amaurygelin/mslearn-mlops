@@ -16,4 +16,4 @@ jobs:
       with:
         creds: ${{secrets.AZURE_CREDENTIALS}}
     - name: Trigger AML Training Job
-      run: az ml job create -f ../src/job.yaml
+      run: az ml job create -f ../src/job.yaml --resource-group azureml-sample-rg --workspace-name azureml-sample-ws
