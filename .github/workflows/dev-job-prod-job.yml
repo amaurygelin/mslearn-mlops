@@ -1,0 +1,37 @@
+name: GitHub Environments
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  train_dev:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@main
+    - name: Install az ml extension
+      run: az extension add -n ml -y
+    - name: Azure login
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+    - name: Trigger AML Training Job
+      run: az ml job create -f src/job.yml --resource-group azureml-sample-rg --workspace-name azureml-sample-ws
+  train_prod:
+    needs: train_dev
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@main
+    - name: Install az ml extension
+      run: az extension add -n ml -y
+    - name: Azure login
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+    - name: Trigger AML Training Job
+      run: az ml job create -f src/job_production.yml --resource-group azureml-sample-rg --workspace-name azureml-sample-ws --stream
